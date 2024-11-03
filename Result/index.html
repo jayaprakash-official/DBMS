@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Student Grade Lookup</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      #container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 400px;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+
+      input[type="number"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+      }
+
+      button {
+        background-color: #007bff;
+        /* Blue */
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.3s ease;
+        /* Smooth transition for hover effect */
+      }
+
+      button:hover {
+        background-color: #0056b3;
+        /* Darker blue on hover */
+      }
+
+      #results {
+        margin-top: 20px;
+        text-align: center; /* Center the results within the container */
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 auto; /* Center the table itself */
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <h1>Student Grade Lookup</h1>
+      <label for="roll_no">Enter Roll No:</label>
+      <input type="number" id="roll_no" name="roll_no" />
+      <button onclick="getGrades()">Get Grades</button>
+
+      <div id="results"></div>
+    </div>
+
+    <script>
+      function getGrades() {
+        const rollNo = document.getElementById("roll_no").value;
+
+        console.log("Roll number sent:", rollNo);
+
+        fetch(`http://127.0.0.1:3000/getGrades/${rollNo}`)
+          .then((response) => {
+            console.log("Response status:", response.status);
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Data received:", data);
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "";
+            if (data.length > 0) {
+              const table = document.createElement("table");
+              table.innerHTML =
+                "<tr><th>Roll No</th><th>Name</th><th>Dept</th><th>Subject</th><th>Grade</th></tr>";
+              data.forEach((item) => {
+                const row = table.insertRow();
+                const rollNoCell = row.insertCell();
+                const nameCell = row.insertCell();
+                const deptCell = row.insertCell();
+                const subjectCell = row.insertCell();
+                const gradeCell = row.insertCell();
+                rollNoCell.innerHTML = item.roll_no;
+                nameCell.innerHTML = item.name;
+                deptCell.innerHTML = item.dept;
+                subjectCell.innerHTML = item.subject;
+                gradeCell.innerHTML = item.grade;
+              });
+              resultsDiv.appendChild(table);
+            } else {
+              resultsDiv.innerHTML =
+                "<p>No results found for this roll number.</p>";
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching grades:", error);
+            document.getElementById("results").innerHTML =
+              "<p>An error occurred.</p>";
+          });
+      }
+    </script>
+  </body>
+</html>
